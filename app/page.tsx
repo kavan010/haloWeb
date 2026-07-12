@@ -91,16 +91,24 @@ function DownloadButtons() {
             <span className="text-slate-600 transition-transform group-open:rotate-90">
               ›
             </span>
-            macOS says the app is &ldquo;damaged&rdquo;?
+            Opening on Mac for the first time?
           </span>
         </summary>
         <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 text-[13px] leading-relaxed text-slate-400">
           <p>
-            HALO isn&rsquo;t notarized by Apple yet, so Gatekeeper blocks it on
-            first launch. Move HALO to Applications, then run this once in
-            Terminal:
+            HALO isn&rsquo;t notarized by Apple yet, so on first launch macOS
+            shows &ldquo;Apple could not verify&hellip;&rdquo;. It&rsquo;s safe
+            to open &mdash; two ways to get past it:
           </p>
-          <code className="mt-3 block overflow-x-auto rounded-md bg-black/40 px-3 py-2 font-mono text-[12px] text-slate-200 ring-1 ring-inset ring-white/10">
+          <p className="mt-3 font-medium text-slate-300">Point &amp; click</p>
+          <p className="mt-1">
+            Open <span className="text-slate-300">System Settings → Privacy
+            &amp; Security</span>, scroll to <span className="text-slate-300">
+            Security</span>, and click <span className="text-slate-300">Open
+            Anyway</span> next to HALO.
+          </p>
+          <p className="mt-3 font-medium text-slate-300">Or, in Terminal</p>
+          <code className="mt-2 block overflow-x-auto rounded-md bg-black/40 px-3 py-2 font-mono text-[12px] text-slate-200 ring-1 ring-inset ring-white/10">
             xattr -dr com.apple.quarantine /Applications/HALO.app
           </code>
         </div>
