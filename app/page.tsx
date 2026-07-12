@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
 /* ---------- Halo mark: a clean, static halo ring over a dark core ---------- */
 function HaloMark({ className = "" }: { className?: string }) {
   return (
@@ -31,31 +27,11 @@ function HaloMark({ className = "" }: { className?: string }) {
 const REPO = "kavan010/haloWeb";
 const VERSION = "v1.0.0";
 const RELEASE = `https://github.com/${REPO}/releases/download/${VERSION}`;
+// Universal DMG runs on both Apple Silicon and Intel; single Windows installer.
 const DL = {
-  macArm: `${RELEASE}/HALO-1.0.0-arm64.dmg`,
-  macIntel: `${RELEASE}/HALO-1.0.0.dmg`,
-  // GitHub replaces spaces with dots in release asset names.
-  win: `${RELEASE}/HALO.Setup.1.0.0.exe`,
+  mac: `${RELEASE}/HALO-1.0.0-universal.dmg`,
+  win: `${RELEASE}/HALO-Setup-1.0.0.exe`,
 };
-
-/* Best-effort Mac chip detection via the GPU renderer string. */
-function detectMacChip(): "arm" | "intel" | null {
-  try {
-    const canvas = document.createElement("canvas");
-    const gl = (canvas.getContext("webgl") ||
-      canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null;
-    if (!gl) return null;
-    const ext = gl.getExtension("WEBGL_debug_renderer_info");
-    const renderer = ext
-      ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL))
-      : "";
-    if (/intel|amd|radeon/i.test(renderer)) return "intel";
-    if (/apple/i.test(renderer)) return "arm";
-  } catch {
-    /* ignore — fall back to default */
-  }
-  return null;
-}
 
 /* ---------- icons ---------- */
 function AppleIcon() {
@@ -84,25 +60,11 @@ function GithubIcon() {
 
 /* ---------- download buttons ---------- */
 function DownloadButtons() {
-  // Default to Apple Silicon (works without JS); refine once we detect the chip.
-  const [macHref, setMacHref] = useState(DL.macArm);
-  const [chip, setChip] = useState<"arm" | "intel" | null>(null);
-
-  useEffect(() => {
-    const detected = detectMacChip();
-    if (detected === "intel") {
-      setChip("intel");
-      setMacHref(DL.macIntel);
-    } else if (detected === "arm") {
-      setChip("arm");
-    }
-  }, []);
-
   return (
     <div className="flex flex-col items-center gap-5">
       <div className="flex flex-col items-center gap-3 sm:flex-row">
         <a
-          href={macHref}
+          href={DL.mac}
           className="flex w-64 items-center justify-center gap-2.5 rounded-lg bg-white px-6 py-3 text-[15px] font-semibold text-slate-900 shadow-[0_1px_0_rgba(255,255,255,0.4)_inset,0_8px_24px_rgba(0,0,0,0.35)] transition-colors hover:bg-slate-100 sm:w-auto"
         >
           <AppleIcon />
@@ -118,27 +80,31 @@ function DownloadButtons() {
         </a>
       </div>
 
-      {/* Mac arch fallback — the button auto-picks, this lets people override */}
       <p className="text-[13px] text-slate-500">
-        Mac build:{" "}
-        <a
-          href={DL.macArm}
-          className={`underline-offset-4 transition-colors hover:text-slate-300 hover:underline ${
-            chip !== "intel" ? "text-slate-300" : ""
-          }`}
-        >
-          Apple Silicon
-        </a>{" "}
-        <span className="text-slate-700">·</span>{" "}
-        <a
-          href={DL.macIntel}
-          className={`underline-offset-4 transition-colors hover:text-slate-300 hover:underline ${
-            chip === "intel" ? "text-slate-300" : ""
-          }`}
-        >
-          Intel
-        </a>
+        Universal build · runs on Apple Silicon &amp; Intel
       </p>
+
+      {/* Honest note: the build isn't notarized yet, so first-run needs an unblock */}
+      <details className="group mt-1 w-full max-w-md text-left">
+        <summary className="cursor-pointer list-none text-[13px] text-slate-500 transition-colors hover:text-slate-300">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="text-slate-600 transition-transform group-open:rotate-90">
+              ›
+            </span>
+            macOS says the app is &ldquo;damaged&rdquo;?
+          </span>
+        </summary>
+        <div className="mt-3 rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 text-[13px] leading-relaxed text-slate-400">
+          <p>
+            HALO isn&rsquo;t notarized by Apple yet, so Gatekeeper blocks it on
+            first launch. Move HALO to Applications, then run this once in
+            Terminal:
+          </p>
+          <code className="mt-3 block overflow-x-auto rounded-md bg-black/40 px-3 py-2 font-mono text-[12px] text-slate-200 ring-1 ring-inset ring-white/10">
+            xattr -dr com.apple.quarantine /Applications/HALO.app
+          </code>
+        </div>
+      </details>
     </div>
   );
 }
